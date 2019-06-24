@@ -1,0 +1,162 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+
+
+
+<div id="curve_chart" style="width:1200px;height:800px;"></div>
+<asp:Label id="getdata" runat="server"></asp:Label>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', { 'packages': ['corechart'] });
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    //google.charts.setOnLoadCallback(drawChart);
+
+    // Callback that creates and populates a data table,
+    // instantiates the pie chart, passes in the data and
+    // draws it.
+    
+
+
+   // TESTER = document.getElementById('tester');
+    var button_prev =   document.createElement("button");
+    var button_next =   document.createElement("button");
+    var smooth_button = document.createElement("button");
+    smooth_button.innerHTML = "Smooth";
+    button_next.innerHTML = "Next";
+    button_prev.innerHTML = "Prev";
+    var body = document. getElementsByTagName("body")[0];
+    body.appendChild(button_prev);
+    body.appendChild(button_next);
+    body.appendChild(smooth_button);
+    
+    var step = 48;
+    button_prev.addEventListener("click",
+        function () {
+            stop += step;
+            if (stop >= F.length) {
+                stop = F.length;
+                start = stop - step;
+            } else {
+                start += step;
+            }
+            
+            drawChart();
+    });
+    button_next.addEventListener("click",
+        function () {
+            start -= step;
+            if (start < 0) {
+                start = 0;
+                stop = start + step;
+            } else {
+                stop -= step;
+            }
+            drawChart();
+        });
+    smooth_button.addEventListener("click",
+        function () {
+            if (smooth_button.innerHTML == "Smooth") {
+                smooth_button.innerHTML = "Corse";
+            }
+            else {
+                smooth_button.innerHTML = "Smooth";
+
+            }
+            drawChart();
+        });
+    var F = [];
+    var S = [];
+    var T = [];
+    var label = []
+    var timestamp = []
+    var date = []
+    var i = 0
+    var smooth = false;
+    var start = 0
+    var stop = 48
+    @foreach(temperature_razor_2.TemperaturData data in temperature_razor_2.Temperatures.load_temperatures()) {
+        <text>
+        F.push(@data.farsund);
+        S.push(@data.smeaheia);
+        T.push(@data.farsund_id);
+        label.push("@data.tid");
+        timestamp.push("@data.timestamp");
+        </text>
+    }
+    //var farsund = {
+    //    x: T, y: F,
+    //    mode: 'Farsund',
+    //    name: 'Farsund'
+    //};
+    //var  smeaheia = {
+    //    x: T, y: S,
+    //    mode: 'Smeaheia',
+    //    name: 'Smeaheia',
+    //};
+
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart( ) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'tid');
+        data.addColumn('number', 'Farsund');
+        data.addColumn('number', 'Smeaheia');
+        var size = F.length;
+        data.addRows(stop - start);
+        var curvetype = '';
+        if (smooth_button.innerHTML == "Corse") {
+            curvetype = 'function';
+        }
+        else {
+            curvetype = '';
+        }
+        for (var i = 0; i < stop-start; i++) {
+            var index = stop - i - 1;
+            data.setCell(i, 0, timestamp[index]);
+            data.setCell(i, 1, F[index]);
+            data.setCell(i, 2, S[index]);
+        }
+        var options = {
+            'title': 'Farsund og Smeaheia ' + timestamp[start],
+            'width':1200,
+            'height': 800,
+            'curveType': curvetype
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+        chart.draw(data, options);
+    }
+</script>
+
+@*<table class="tabel" style="width:50%">
+    <thead>
+        <tr>
+            <th>Farsund</th>
+            <th>Smeaheia</th>
+            <th>Tid</th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+
+        @foreach( temperature_razor_2.TemperaturData data in temperature_razor_2.Temperatures.load_temperatures()) {
+        <tr>
+            <td>@data.farsund</td>
+            <td>@data.smeaheia</td>
+            <td>@data.tid</td>
+            <td>@data.timestamp</td>
+
+        </tr>
+        }
+    </tbody>
+</table>*@
+
+
+
