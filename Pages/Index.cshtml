@@ -6,9 +6,12 @@
 
 
 
+<input type="range" id="Timespan" value="90"  min="0" max="100">
 
 <div id="curve_chart" style="width:1200px;height:800px;"></div>
 <asp:Label id="getdata" runat="server"></asp:Label>
+
+
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
 
@@ -21,13 +24,16 @@
     // Callback that creates and populates a data table,
     // instantiates the pie chart, passes in the data and
     // draws it.
-    
+
 
 
    // TESTER = document.getElementById('tester');
     var button_prev =   document.createElement("button");
     var button_next =   document.createElement("button");
     var smooth_button = document.createElement("button");
+
+
+
     smooth_button.innerHTML = "Smooth";
     button_next.innerHTML = "Next";
     button_prev.innerHTML = "Prev";
@@ -35,8 +41,36 @@
     body.appendChild(button_prev);
     body.appendChild(button_next);
     body.appendChild(smooth_button);
-    
+
     var step = 48;
+
+    var range = document.getElementById("Timespan");
+ 
+    range.addEventListener("mouseup", function() {
+        step = range.value;
+        span = stop - start;
+        diff = step - span;
+        var lstep = Math.trunc(diff / 2);
+        var rstep = lstep;
+        start = start - lstep;
+              
+        if (start<4) {
+            rstep = lstep + Math.abs(start - 4);
+            start = 4;
+        }
+
+        
+        
+        
+        stop = stop + rstep;
+        stop = stop > F.length? F.length: stop;
+        step = stop - start;
+        range.value = step;
+        drawChart();
+     });
+
+
+
     button_prev.addEventListener("click",
         function () {
             stop += step;
@@ -46,7 +80,7 @@
             } else {
                 start += step;
             }
-            
+
             drawChart();
     });
     button_next.addEventListener("click",
@@ -71,6 +105,9 @@
             }
             drawChart();
         });
+
+
+
     var F = [];
     var S = [];
     var T = [];
@@ -81,6 +118,7 @@
     var smooth = false;
     var start = 0
     var stop = 48
+    
     @foreach(temperature_razor_2.TemperaturData data in temperature_razor_2.Temperatures.load_temperatures()) {
         <text>
         F.push(@data.farsund);
@@ -90,6 +128,15 @@
         timestamp.push("@data.timestamp");
         </text>
     }
+    range.setAttribute("min",4);
+    range.setAttribute("max",F.length);
+   // range.min = 0;
+   // range.max = F.length;
+    range.value = step;
+
+
+ 
+
     //var farsund = {
     //    x: T, y: F,
     //    mode: 'Farsund',
@@ -132,31 +179,36 @@
         var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
         chart.draw(data, options);
     }
+
+   
+
+
+
 </script>
 
 @*<table class="tabel" style="width:50%">
-    <thead>
-        <tr>
-            <th>Farsund</th>
-            <th>Smeaheia</th>
-            <th>Tid</th>
+        <thead>
+            <tr>
+                <th>Farsund</th>
+                <th>Smeaheia</th>
+                <th>Tid</th>
 
 
-        </tr>
-    </thead>
-    <tbody>
+            </tr>
+        </thead>
+        <tbody>
 
-        @foreach( temperature_razor_2.TemperaturData data in temperature_razor_2.Temperatures.load_temperatures()) {
-        <tr>
-            <td>@data.farsund</td>
-            <td>@data.smeaheia</td>
-            <td>@data.tid</td>
-            <td>@data.timestamp</td>
+            @foreach( temperature_razor_2.TemperaturData data in temperature_razor_2.Temperatures.load_temperatures()) {
+            <tr>
+                <td>@data.farsund</td>
+                <td>@data.smeaheia</td>
+                <td>@data.tid</td>
+                <td>@data.timestamp</td>
 
-        </tr>
-        }
-    </tbody>
-</table>*@
+            </tr>
+            }
+        </tbody>
+    </table>*@
 
 
 
